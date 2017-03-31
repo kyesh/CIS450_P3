@@ -33,8 +33,8 @@ void* VehicleAction(void* arg) {
 
 typedef struct _vehicle_info {
 int id; // id
-int dir; // heading direction
 double inter_arrival_t; // inter-arrival time between this vehicle and next
+int dir; // heading direction
 } vehicle_info;
 
 
@@ -45,6 +45,24 @@ int main(int argc, char *argv[]) {
 	pthread_t p;
 	myarg_t args;
 	myret_t *m;
+
+	// North = 1, South = 0
+	_vehicle_info[] cars = { 
+		{ 0, 0.0, 1 }
+		{ 1, 1.0, 1 }
+		{ 2, 2.0, 0 }
+		{ 3, 3.0, 0 }
+		{ 4, 4.0, 0 }
+		{ 5, 5.0, 1 }
+		{ 6, 6.0, 1 }
+		{ 7, 7.0, 0 }
+		{ 8, 8.0, 0 }
+		{ 9, 9.0, 1 }
+		{ 10, 10.0, 1 }
+		{ 11, 11.0, 1 }
+		{ 12, 12.0, 1 }
+	}; // end array
+
 
 	args.a = 10;
 	args.b = 20;
