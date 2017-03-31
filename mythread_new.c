@@ -22,6 +22,22 @@ void *mythread(void *arg) {
 	return (void *) r;
 }
 
+void* VehicleAction(void* arg) {
+
+	vehicle_info *ti = (vehicle_info *) arg;
+	ArriveBridge(ti);
+	CrossBridge(ti);
+	ExitBridge(ti);
+
+}
+
+typedef struct _vehicle_info {
+int id; // id
+int dir; // heading direction
+double inter_arrival_t; // inter-arrival time between this vehicle and next
+} vehicle_info;
+
+
 
 int main(int argc, char *argv[]) {
 	int rc;
