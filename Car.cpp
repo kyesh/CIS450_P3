@@ -19,6 +19,8 @@ public:
 	void ArriveBridge();
 	void CrossBridge();
 	void ExitBridge();
+	
+	pthread_t carPThread;
 
 }; // end Car class
 
@@ -29,6 +31,11 @@ Car::Car(int carid, double arrival_time, int direction)
 	id = carid;
 	inter_arrival_t = arrival_time;
 	dir = direction;
+}
+
+void *carPThread(void *arg)
+{
+	return (void *) r;
 }
 
 

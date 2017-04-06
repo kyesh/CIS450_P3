@@ -6,10 +6,19 @@
 
 
 
+typedef struct __cararg_t {
+	int carid;
+	double arrival_time;
+	int direction;
+} cararg_t;
+
+typedef struct __carReturn_t {
+	double finish_time;
+} carReturn_t;
+
 
 int main(int argc, char *argv[]) {
 
-	pthread_t p;
 	
 	
 
@@ -38,8 +47,15 @@ int main(int argc, char *argv[]) {
 		
 		*/
 	}; // end array
+	int sizeOfArray = sizeof(cars)/sizeof(cars[0]);
+	for (int i = 0; i < sizeOfArray; ++i)
+	{
+	
+		int foo = pthread_create(&Car[i].carPThread, 
+		NULL, Car[i].carPThread, 
+	}
 
-
+	cararg_t
 
 	return 0;
 } // end main
