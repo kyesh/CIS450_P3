@@ -43,6 +43,7 @@ int GlobaGoNum = -1;
 vehicle_info vQue[N];
 int sQue[N];
 
+/* Greedy
 void updateGoNum(){
 
      char activeDirection = 0;  
@@ -72,6 +73,41 @@ void updateGoNum(){
     
 
 }
+*/
+
+// FCFS
+void updateGoNum(){
+
+     char activeDirection = 0;  
+     int  bridgecount = 0;
+      for(int i = 0 ; i < N; i++){
+        if(sQue[i] == GOING){
+          activeDirection = vQue[i].dir;
+          bridgecount = bridgecount + 1;
+          if(bridgecount > 2){
+            return;
+          }
+        }
+     }
+
+
+     for(int i = 0 ; i < N; i++){
+        if(sQue[i] == WAITING && (vQue[i].dir == activeDirection || activeDirection == 0 )){
+
+          GlobaGoNum = i;
+          std::cout << "GoNum is now: " << GlobaGoNum << std::endl;
+          pthread_cond_broadcast(&goNumTracker);
+          return;
+
+        }else if(sQue[i] == WAITING && vQue[i].dir != activeDirection){
+          return;
+        }
+
+     }
+    
+
+}
+
 
 void changeStatusTo(vehicle_info ti, int status){
    
@@ -151,13 +187,13 @@ int main(int argc, char *argv[]) {
    for (int i = 0; i < N; i++) {
       sQue[i] = 0;
       pthread_create(&p[i], NULL, VehicleAction, &vQue[i]);
-      std::this_thread::sleep_for(std::chrono::milliseconds(950*vQue[i].inter_arrival_t));
+      std::this_thread::sleep_for(std::chrono::milliseconds(975*vQue[i].inter_arrival_t));
       std::cout << "Time is now: " << cartime << std::endl;
       cartime = cartime + vQue[i].inter_arrival_t;
    }
 
    for (int i = 0; i < N*2; i++) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(950));
+      std::this_thread::sleep_for(std::chrono::milliseconds(975));
       std::cout << "Time is now: " << cartime << std::endl;
       cartime = cartime + 1;
    }
