@@ -35,6 +35,7 @@ Car::Car(int carid, double arrival_time, int direction)
 
 void *carPThread(void *arg)
 {
+	myret_t *r = malloc(sizeof(myret_t))
 	return (void *) r;
 }
 
