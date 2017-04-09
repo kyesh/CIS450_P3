@@ -151,13 +151,13 @@ int main(int argc, char *argv[]) {
    for (int i = 0; i < N; i++) {
       sQue[i] = 0;
       pthread_create(&p[i], NULL, VehicleAction, &vQue[i]);
-      std::this_thread::sleep_for(std::chrono::milliseconds(1000*vQue[i].inter_arrival_t));
+      std::this_thread::sleep_for(std::chrono::milliseconds(950*vQue[i].inter_arrival_t));
       std::cout << "Time is now: " << cartime << std::endl;
       cartime = cartime + vQue[i].inter_arrival_t;
    }
 
    for (int i = 0; i < N*2; i++) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+      std::this_thread::sleep_for(std::chrono::milliseconds(950));
       std::cout << "Time is now: " << cartime << std::endl;
       cartime = cartime + 1;
    }
