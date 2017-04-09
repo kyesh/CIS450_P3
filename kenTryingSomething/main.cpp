@@ -14,9 +14,10 @@
 
 #define N      13
 
-#define WAITING 0
-#define GOING   1
-#define DONE    2
+#define NotThere 0
+#define WAITING  1
+#define GOING    2
+#define DONE     3
 
 //Array of Structures http://fresh2refresh.com/c-programming/c-array-of-structures/
 
@@ -34,18 +35,47 @@ void setVechicleInfo(vehicle_info &vinf, int id, char dir, double inter_arrival_
 
 }
 
+pthread_cond_t goNumTracker;
+pthread_mutex_t queLock;
+
+int cartime = 0;
 int GlobaGoNum = -1;
 vehicle_info vQue[N];
 int sQue[N];
 
 void updateGoNum(){
 
-   
+     char activeDirection = 0;  
+     int  bridgecount = 0;
+      for(int i = 0 ; i < N; i++){
+        if(sQue[i] == GOING){
+          activeDirection = vQue[i].dir;
+          bridgecount = bridgecount + 1;
+          if(bridgecount > 2){
+            return;
+          }
+        }
+     }
+
+
+     for(int i = 0 ; i < N; i++){
+        if(sQue[i] == WAITING && (vQue[i].dir == activeDirection || activeDirection == 0 )){
+
+          GlobaGoNum = i;
+          std::cout << "GoNum is now: " << GlobaGoNum << std::endl;
+          pthread_cond_broadcast(&goNumTracker);
+          return;
+
+        }
+
+     }
+    
 
 }
 
 void changeStatusTo(vehicle_info ti, int status){
-
+   
+   std::cout << "Vechicle " << ti.id << "(" << ti.dir << ") Status Changed to: "<< status  << std::endl;
    sQue[ti.id] = status;
    updateGoNum();
 
@@ -53,26 +83,38 @@ void changeStatusTo(vehicle_info ti, int status){
 
 void ArriveBridge(vehicle_info ti){
 
-
+   pthread_mutex_lock(&queLock);
    changeStatusTo(ti, WAITING);
    while(ti.id != GlobaGoNum){
 
-   
+   pthread_cond_wait(&goNumTracker, &queLock); 
 
    }
+
+   pthread_mutex_unlock(&queLock);
 
 }
 
 void CrossBridge(vehicle_info ti){
-std::cout << "Time: " << time << ": Vechicle " << ti.id << "(" << ti.dir << ") crossing" << std::endl;
+
+pthread_mutex_lock(&queLock);
 changeStatusTo(ti, GOING);
+pthread_mutex_unlock(&queLock);
+
+std::cout << "Time: " << cartime << ": Vechicle " << ti.id << "(" << ti.dir << ") crossing" << std::endl;
+
 std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
 }
 
 void ExitBridge(vehicle_info ti){
 
+   pthread_mutex_lock(&queLock);
    changeStatusTo(ti, DONE);
+   pthread_mutex_unlock(&queLock);
+
+   std::cout << "Time: " << cartime << ": Vechicle " << ti.id << "(" << ti.dir << ") finished" << std::endl;
+
 
 }
 
@@ -89,7 +131,7 @@ int main(int argc, char *argv[]) {
 
 	pthread_t p[N];
         
-        setVechicleInfo(vQue[0],0,'N',0.0);
+        setVechicleInfo(vQue[0],0,'N',1.0);
         setVechicleInfo(vQue[1],1,'N',1.0);
         setVechicleInfo(vQue[2],2,'S',1.0);
         setVechicleInfo(vQue[3],3,'S',1.0);
@@ -107,9 +149,19 @@ int main(int argc, char *argv[]) {
 
 
    for (int i = 0; i < N; i++) {
-       std::this_thread::sleep_for(std::chrono::milliseconds(1000*vQue[i].inter_arrival_t));
-       pthread_create(&p[i], NULL, VehicleAction, &vQue[i]);
+      sQue[i] = 0;
+      pthread_create(&p[i], NULL, VehicleAction, &vQue[i]);
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000*vQue[i].inter_arrival_t));
+      std::cout << "Time is now: " << cartime << std::endl;
+      cartime = cartime + vQue[i].inter_arrival_t;
    }
+
+   for (int i = 0; i < N*2; i++) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+      std::cout << "Time is now: " << cartime << std::endl;
+      cartime = cartime + 1;
+   }
+
 
     for (int i = 0; i < N; i++)
        pthread_join(p[i], NULL);
